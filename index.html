@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic Queries</title>
+<style>
+/* Layout: one reading column, tab bar on top; the Dynamic Queries tab pairs a query list with a story panel. */
+:root{
+  --bg:#f4f6f4; --surface:#ffffff; --ink:#1c2622; --muted:#56635d; --line:#d3dad5;
+  --accent:#2c5b63; --accent-ink:#ffffff; --tint:#e3eeee;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a18; --surface:#1c2421; --ink:#e6ebe8; --muted:#a2b0a9; --line:#34413c;
+  --accent:#8cc3c9; --accent-ink:#10201f; --tint:#233433; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a18; --surface:#1c2421; --ink:#e6ebe8; --muted:#a2b0a9; --line:#34413c;
+  --accent:#8cc3c9; --accent-ink:#10201f; --tint:#233433; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:1.0625rem;line-height:1.65;padding-inline:16px;padding-block:24px 56px}
+.wrap{max-width:46rem;margin-inline:auto}
+header h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,5vw,2.3rem);line-height:1.15;margin:0 0 .4rem;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-family:var(--sans);font-size:.9rem}
+[role=tablist]{display:flex;gap:4px;margin-block:22px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+[role=tab]{font:600 .9rem var(--sans);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:.7rem .9rem;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+[role=tab][aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+[role=tab]:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[role=tabpanel]{padding-block:26px 0}
+h2{font-size:1.35rem;line-height:1.25;margin:0 0 .8rem;text-wrap:balance}
+p{margin:0 0 1rem}
+.label{font:600 .72rem var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .35rem}
+.queries{list-style:none;margin:0;padding:0;display:grid;gap:.9rem}
+.queries li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.9rem 1.1rem}
+.dq{display:grid;grid-template-columns:minmax(0,16rem) minmax(0,1fr);gap:20px;align-items:start;margin-top:20px}
+.qlist{display:grid;gap:6px}
+.qbtn{font:400 .93rem/1.4 var(--sans);text-align:left;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.65rem .8rem;cursor:pointer}
+.qbtn[aria-pressed=true]{background:var(--tint);border-color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1.2rem 1.3rem;min-width:0}
+.panel .story{margin:0 0 1.1rem}
+.reveal{font:600 .9rem var(--sans);background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:.6rem 1rem;cursor:pointer}
+.newq{margin:0;padding:.9rem 1rem;background:var(--tint);border-radius:6px;font-style:italic;font-size:1.12rem}
+.step-note{font-family:var(--sans);font-size:.85rem;color:var(--muted)}
+form{display:grid;gap:14px;margin-top:18px}
+label{font:600 .85rem var(--sans);display:grid;gap:5px}
+textarea,input{font:400 1rem/1.5 var(--serif);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.6rem .75rem;width:100%;box-sizing:border-box}
+textarea{min-height:5.5rem;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ghost{font:600 .9rem var(--sans);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:6px;padding:.6rem 1rem;cursor:pointer}
+.status{font:.85rem var(--sans);color:var(--muted)}
+.ref{font-style:italic}
+@media (max-width:640px){.dq{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:no-preference){[role=tabpanel]{animation:in .18s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <h1>Dynamic Queries</h1>
+  <p>Jeff Kisling · Channels Into Knowledge</p>
+</header>
+
+<div role="tablist" aria-label="Sections">
+  <button role="tab" id="t-queries" aria-controls="p-queries" aria-selected="true">Queries</button>
+  <button role="tab" id="t-dynamic" aria-controls="p-dynamic" aria-selected="false" tabindex="-1">Dynamic queries</button>
+  <button role="tab" id="t-find" aria-controls="p-find" aria-selected="false" tabindex="-1">Find a story</button>
+</div>
+
+<section role="tabpanel" id="p-queries" aria-labelledby="t-queries">
+  <h2>How Quakers use queries</h2>
+  <p>Asking questions is central to Quakers' spiritual practices. Since Quaker meetings don't have ministers, we have a practice of considering a set of questions together as a meeting. We sit together, or connect remotely, for about an hour. The month's queries (questions) are read, then we sit in silence. Friends who have a response speak that into the silence. These discussions help us share with each other how we are doing spiritually, physically, mentally. In my meeting there are twelve sets of queries, organized by topic. Here are the queries about personal responsibility, for example.</p>
+  <p class="label">Queries on personal responsibility</p>
+  <ol class="queries" id="qlist-static"></ol>
+</section>
+
+<section role="tabpanel" id="p-dynamic" aria-labelledby="t-dynamic" hidden>
+  <h2>Dynamic queries and responses</h2>
+  <p>Our queries are meant to be asked again and again. But we have to guard against answers becoming routine. And the questions themselves can become dated. What often brings a query back to life is a story. When I can connect a query to something that actually happened, a new question usually rises out of the story. I've begun calling these dynamic queries.</p>
+  <p>Here is what that looks like with the queries on personal responsibility, using stories from my own writing. Choose a query, read the story, then open the question it raises.</p>
+  <div class="dq">
+    <div class="qlist" id="qbtns" role="group" aria-label="Queries"></div>
+    <div class="panel" aria-live="polite">
+      <p class="label">Story</p>
+      <p class="story" id="story"></p>
+      <button class="reveal" id="reveal" type="button">Show the new question</button>
+      <p class="newq" id="newq" hidden></p>
+    </div>
+  </div>
+</section>
+
+<section role="tabpanel" id="p-find" aria-labelledby="t-find" hidden>
+  <h2>Find a story</h2>
+  <p>The stories don't answer the queries. They open them up again. I hope you'll try this with your own meeting's queries: find a story, and listen for the new question it asks.</p>
+  <p>Where do you find stories? Besides the usual sources, I plan to explain about a new source for Quaker stories. This post is an introduction.</p>
+  <p class="step-note">Worksheet: fill in the three boxes, then copy the result to share with your meeting.</p>
+  <form id="ws" autocomplete="off">
+    <label for="w-query">A query from your meeting<textarea id="w-query"></textarea></label>
+    <label for="w-story">A story it brings to mind<textarea id="w-story"></textarea></label>
+    <label for="w-new">The new question the story asks<textarea id="w-new"></textarea></label>
+    <div class="row">
+      <button class="ghost" type="submit" id="copy">Copy to share</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </form>
+</section>
+</div>
+
+<script>
+const QUERIES=[
+ {q:"How do we center our lives in the awareness of God the Spirit, so that all things may take their rightful places?",
+  short:"How do we center our lives in the awareness of God the Spirit?",
+  s:"When I'm out with my camera, I walk slowly and in silence, and when a scene is complex I stop and wait until the image within it emerges. Over the years I've come to see this as a kind of meeting for worship.",
+  d:"Where in our ordinary activities do we stop and wait for guidance?"},
+ {q:"How do we structure our individual lives in order to keep them uncluttered with things and activities? How does Meeting help us examine our personal lives for simplicity?",
+  short:"How do we keep our lives uncluttered with things and activities?",
+  s:"In 1972, at the Friends Volunteer Service Mission in Indianapolis, a few of us began sharing meals and worship on First Day evenings. We refused to pay the telephone war tax, and I taught neighborhood kids to develop photos in a darkroom set up in our bathroom.",
+  d:"What might we gain by sharing more of our daily lives with one another?"},
+ {q:"Do we choose recreational activities which foster mental, physical and spiritual health?",
+  short:"Do we choose recreation that fosters mental, physical and spiritual health?",
+  s:"When I moved back to Iowa without a car, I set out to ride my bicycle to Bear Creek Meeting, 44 miles away. The hills taught me quickly that vertical distance matters far more than horizontal.",
+  d:"How might the way we travel to meeting become part of our witness?"},
+ {q:"How are our lives affected by tobacco, alcohol and drug use? What can we do to deal with problems resulting from their use? What can we do to recognize and deal with unhealthy ways we treat ourselves?",
+  short:"What can we do to recognize unhealthy ways we treat ourselves?",
+  s:"After forty years without a car, I ended up holding the lease on one. Within months I caught myself driving to the grocery store. I was surprised at how fast that habit took hold.",
+  d:"Which habits have grown on us so slowly that we no longer notice them?"},
+ {q:"How do we ensure that we act with fairness and integrity?",
+  short:"How do we ensure that we act with fairness and integrity?",
+  s:"On the First Nation–Farmer Climate Unity March, I told my Native walking companion Matthew that I knew about Quakers' part in the Indian boarding schools and that I was sorry. The next time we walked together, he shared a story from his own family. We became friends. I wrote about it in <span class='ref'>What does it mean to be a truth teller?</span>",
+  d:"What truth have we been hoping would not come up?"},
+ {q:"Are we sensitive to our own use of language which may be offensive or oppressive to others?",
+  short:"Are we sensitive to language that may be offensive or oppressive?",
+  s:"“Iowa was opened to settlement” names no one. Rewritten with an actor, it says the United States forced the Sauk, Meskwaki and Ioway from Iowa through coerced treaties and sold their land to settlers. That land is still held today. I explore this in <span class='ref'>Grammar of Silence</span>.",
+  d:"Which of our everyday sentences hide who did what to whom?"}
+];
+const $=id=>document.getElementById(id);
+$("qlist-static").innerHTML=QUERIES.map(x=>"<li>"+x.q+"</li>").join("");
+
+/* tabs */
+const tabs=[...document.querySelectorAll("[role=tab]")];
+function show(tab,focus){
+  tabs.forEach(t=>{const on=t===tab;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1;$(t.getAttribute("aria-controls")).hidden=!on});
+  if(focus)tab.focus();
+  try{history.replaceState(null,"","#"+tab.id.slice(2))}catch(e){}
+}
+tabs.forEach((t,i)=>{
+  t.addEventListener("click",()=>show(t));
+  t.addEventListener("keydown",e=>{
+    const k={ArrowRight:1,ArrowLeft:-1}[e.key];
+    if(k){e.preventDefault();show(tabs[(i+k+tabs.length)%tabs.length],true)}
+    if(e.key==="Home"){e.preventDefault();show(tabs[0],true)}
+    if(e.key==="End"){e.preventDefault();show(tabs[tabs.length-1],true)}
+  });
+});
+const h=(location.hash||"").slice(1);
+const start=tabs.find(t=>t.id==="t-"+h);if(start)show(start);
+
+/* dynamic queries */
+const btns=$("qbtns");let cur=0;
+btns.innerHTML=QUERIES.map((x,i)=>'<button type="button" class="qbtn" data-i="'+i+'" aria-pressed="false">'+x.short+'</button>').join("");
+function pick(i){
+  cur=i;
+  [...btns.children].forEach((b,j)=>b.setAttribute("aria-pressed",j===i));
+  $("story").innerHTML=QUERIES[i].s;
+  $("newq").hidden=true;$("reveal").hidden=false;
+  $("newq").textContent=QUERIES[i].d;
+}
+btns.addEventListener("click",e=>{const b=e.target.closest(".qbtn");if(b)pick(+b.dataset.i)});
+$("reveal").addEventListener("click",()=>{$("newq").hidden=false;$("reveal").hidden=true});
+pick(0);
+
+/* worksheet */
+$("ws").addEventListener("submit",e=>{
+  e.preventDefault();
+  const t="Query: "+$("w-query").value.trim()+"\n\nStory: "+$("w-story").value.trim()+"\n\nDynamic query: "+$("w-new").value.trim();
+  const done=ok=>{$("status").textContent=ok?"Copied.":"Select the text in the boxes and copy it by hand."};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>done(true),()=>done(false))}else done(false);
+});
+</script>
+
+</body>
+</html>
